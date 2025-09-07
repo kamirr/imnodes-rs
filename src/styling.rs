@@ -422,6 +422,21 @@ pub struct AttributeFlagToken {
     ended: bool,
 }
 impl AttributeFlagToken {
+    /// Pushes an [`AttributeFlags`] setting onto the internal stack.
+    ///
+    /// The flag applies to attributes created after this call, until the
+    /// returned [`AttributeFlagToken`] is popped.
+    /// By default, only `AttributeFlags::None` is active.
+    ///
+    /// Remember to call `.pop()` on the returned token.
+    #[doc(alias = "PushAttributeFlag")]
+    #[must_use = "The returned AttributeFlagToken must be popped to restore the previous flag state"]
+    pub fn push(flag: AttributeFlags) -> Self {
+        // Safety: C API call. Pushes a flag onto the internal stack.
+        unsafe { sys::imnodes_PushAttributeFlag(flag as i32) };
+        AttributeFlagToken { ended: false }
+    }
+
     /// Pops the attribute flag change associated with this token from the stack.
     #[doc(alias = "PopAttributeFlag")]
     pub fn pop(mut self) {
